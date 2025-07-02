@@ -1,0 +1,279 @@
+{
+  "name": "Email Send Automatically",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d5d31e7-4f5d-42d9-b4a9-0d9145e14e9a",
+              "name": "Name",
+              "value": "={{ $('Google Sheets').item.json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "c3ac25bd-827f-4d76-a80e-e2f80ad9dd18",
+              "name": "Mobile Number",
+              "value": "={{ $('Google Sheets').item.json['Mobile Number'] }}",
+              "type": "string"
+            },
+            {
+              "id": "efb658cf-a86d-4f06-b3ae-05b2582c20e6",
+              "name": "Email",
+              "value": "={{ $('Google Sheets').item.json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "5beafbe1-04a7-4640-bc90-bada75ef185d",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        685
+      ],
+      "id": "f8e99c20-3368-4b15-b107-139a2bbd3607",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1UKDQljcnDVwKcGzwGqzid_f8Xlg9ltx2_flY7mFfAj0",
+          "mode": "list",
+          "cachedResultName": "SmS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UKDQljcnDVwKcGzwGqzid_f8Xlg9ltx2_flY7mFfAj0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 459431885,
+          "mode": "list",
+          "cachedResultName": "Contacts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UKDQljcnDVwKcGzwGqzid_f8Xlg9ltx2_flY7mFfAj0/edit#gid=459431885"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -380,
+        810
+      ],
+      "id": "e619cefe-6e2b-4514-a544-70d2c8433fe7",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wKBed93DsYnrWrbH",
+          "name": "Google Sheets account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -740,
+        860
+      ],
+      "id": "e6511f76-6a69-4818-844c-561fafe07c1b",
+      "name": "When chat message received",
+      "webhookId": "5aea99b6-6007-497e-b0f5-8265bd486554"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=subject :{{ $('When chat message received').item.json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=<AgentInstructions>\n\n  <Role>\n    <Name>chat message generator</Name>\n    <Description>Generates a professional promotional message when chat message is received</Description>\n  </Role>\n\n  <Goal>\n    <Primary>Use the user’s input from {{ $('When chat message received').item.json.chatInput }} to generate a professional promotional message that promotes our institution.</Primary>\n    <Secondary>Only return the message body. No subject lines, greetings, or explanations. Just clean message content.</Secondary>\n  </Goal>\n\n  <Instructions>\n    <Instruction>Use clear, promotional, benefit-focused language.</Instruction>\n    <Instruction>Do not add extra words like \"Subject\", \"Dear\", or \"Regards\". Only print the main promotional message body.</Instruction>\n    <Instruction>End every message with this line exactly:\n\"Join our institution Nac-Mit computer center Dhamtari.  \nhttps://shubhamconsultingservices.com/computer-center-dhamtari-2-2/  \nContact No- +91 93027-89814\"</Instruction>\n  </Instructions>\n\n  <Examples>\n    <Example>\n      <UserInput>\n        15-day free trial promotion message for your course offer\n      </UserInput>\n      <AgentOutput>\n        Unlock 15 days of free access to all our premium courses! 🎓  \nLearn at your own pace, anytime, anywhere. No credit card required.  \nStart your free trial today 👉  \nJoin our institution Nac-Mit computer center Dhamtari.  \nhttps://shubhamconsultingservices.com/computer-center-dhamtari-2-2/  \nContact No- +91 93027-89814\n      </AgentOutput>\n    </Example>\n  </Examples>\n\n</AgentInstructions>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        280,
+        680
+      ],
+      "id": "70998009-3602-47d2-b97c-10bea0a6940a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        200,
+        860
+      ],
+      "id": "31cecb5c-a5df-4618-bc5b-90d634dbf505",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TyNJzsbrAscX5030",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        810
+      ],
+      "id": "f634da35-4fa0-42b6-923e-1000e2217e38",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets').item.json.Email }}",
+        "subject": "={{ $('When chat message received').item.json.chatInput }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        660,
+        820
+      ],
+      "id": "fc4d9937-e4ee-4311-812a-91dc637b2047",
+      "name": "Gmail2",
+      "webhookId": "76f57e06-4574-4a63-a944-a88d0312a4ed",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "OZKNMYNGrkHjGruj",
+          "name": "Gmail account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "mychatapp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        680
+      ],
+      "id": "21460a4c-7298-4d6d-b5af-335a91096955",
+      "name": "Webhook",
+      "webhookId": "c65c9c00-c549-4386-8114-3609d9d7b629"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1d0f3193-adf4-47db-9ccf-98f26779a030",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c971c6a58faf03ec81284993edf81957653645da8d5f203a9d0c8967c03043d2"
+  },
+  "id": "9JejcY3BCBy7yFwV",
+  "tags": []
+}
